@@ -9,29 +9,47 @@ class quat() :
         Args
         ---
         q : array_like, opt.
-        Scalar first quaternion q(w, x, y, z)
+            Scalar first quaternion q(w, x, y, z)
         '''
         self.w = q[0]
         self.x = q[1]
         self.y = q[2]
         self.z = q[3]
 
+    def dot(self, p: Self) :
+        '''
+        Performs the dot product on the two quaternions.
+
+        Args
+        ---
+        p : quat
+            Quaternion to dot this one with
+
+        Returns
+        ---
+        dot : float
+            The dot product of the two quaternions
+        '''
+        return self.w * p.w + self.x * p.x + self.y * p.y + self.z * p.z
+    
     def norm(self) :
         '''
         Returns the 2 norm of the quaternion.
         '''
-        return math.sqrt(self.w ** 2 + self.x ** 2 + self.y ** 2 + self.z ** 2)
+        return math.sqrt(self.dot(self))
     
-    def normalize(self) :
+    def normalized(self) :
         '''
-        Normalizes the quaternion.
+        Returns the normalized quaternion.
         '''
         norm = self.norm()
 
-        self.w /= norm
-        self.x /= norm
-        self.y /= norm
-        self.z /= norm
+        return quat([
+            self.w / norm,
+            self.x / norm,
+            self.y / norm,
+            self.z / norm
+        ])
 
     def inv(self) :
         '''Returns the inverted quaternion.'''
@@ -49,12 +67,12 @@ class quat() :
         Args
         ---
         vec : array_like
-        A vector in R^3 to apply the rotation to
+            A vector in R^3 to apply the rotation to
 
         Returns
         ---
         vec_rot : list
-        Original vector rotated by the quaternion
+            Original vector rotated by the quaternion
         '''
         if not self.is_unit() :
             raise ArithmeticError('Only unit quaternions are valid representations of rotations')

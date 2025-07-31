@@ -1,9 +1,31 @@
-import quat
+from quat import quat
+import math
 
 class dual_quat() :
-    def __init__(self, translation, rotation) :
+    def __init__(self, real = quat([1, 0, 0, 0]), dual = quat([1, 0, 0, 0])) :
         '''
-        Constructs a dual quaternion represention a translation followed by a rotation.
+        Constructs a generic dual quaternion.
+
+        Args
+        ---
+        real : array_like or quat
+            Real component of the dual quaternion
+        dual : array_like or quat
+            Real component of the dual quaternion
+        '''
+        if type(real) == quat :
+            self.r = real
+        else :
+            self.r = quat(real)
+
+        if type(dual) == quat :
+            self.d = dual
+        else :
+            self.d = quat(dual)
+        
+    def from_trans(self, translation, rotation) :
+        '''
+        Constructs a dual quaternion representing transformation of a translation followed by a rotation.
 
         dual_quat = rotation + epsilon * (1/2 translation * rotation)
         
@@ -38,14 +60,16 @@ class dual_quat() :
 
     
 
-# q0 = quat([0, 105, 5, 5])
-# q1 = quat([0.5, -0.5, 0.5, 0.5])
-# dq = dual_quat(q0, q1)
+q0 = quat([0, 105, 5, 5])
+q1 = quat([0.5, -0.5, 0.5, 0.5])
+dq = dual_quat(q0, q1)
 
-# vec = [1, 2, 3]
-# vec_rot = q1.rot_apply(vec)
+print(q0.normalized().norm())
 
-# print(math.sqrt(vec[0] ** 2 + vec[1] ** 2 + vec[2] ** 2))
-# print(math.sqrt(vec_rot[0] ** 2 + vec_rot[1] ** 2 + vec_rot[2] ** 2))
+vec = [1, 2, 3]
+vec_rot = q1.rot_apply(vec)
 
-# print(vec, vec_rot)
+print(math.sqrt(vec[0] ** 2 + vec[1] ** 2 + vec[2] ** 2))
+print(math.sqrt(vec_rot[0] ** 2 + vec_rot[1] ** 2 + vec_rot[2] ** 2))
+
+print(vec, vec_rot)
