@@ -23,7 +23,7 @@ class dual_quat() :
         else :
             self.d = quat(dual)
         
-    def from_trans(self, translation, rotation) :
+    def from_trans(translation, rotation) :
         '''
         Constructs a dual quaternion representing transformation of a translation followed by a rotation.
 
@@ -47,29 +47,32 @@ class dual_quat() :
             raise BaseException(f'Translation {qt} must be a pure quaternion')
 
         if type(rotation) == quat :
-            qr = rotation
-            qr.normalize()
+            if rotation.is_unit() :
+                qr = rotation
+            else :
+                raise BaseException(f'Rotation {rotation} must be a unit quaternion')
         else :
             qr = quat(rotation)
 
-        self.real = qr
-        self.dual = 0.5 * qt * qr
+        return dual_quat(qr, 0.5 * qt * qr)
 
     def __str__(self) :
-        return f'r: ({self.real}); e: ({self.dual})'
+        return f'r: ({self.r}); e: ({self.d})'
 
     
 
 q0 = quat([0, 105, 5, 5])
 q1 = quat([0.5, -0.5, 0.5, 0.5])
-dq = dual_quat(q0, q1)
+dq = dual_quat.from_trans(q0, q1)
 
-print(q0.normalized().norm())
+print(dq)
 
-vec = [1, 2, 3]
-vec_rot = q1.rot_apply(vec)
+# print(q0.normalized().norm())
 
-print(math.sqrt(vec[0] ** 2 + vec[1] ** 2 + vec[2] ** 2))
-print(math.sqrt(vec_rot[0] ** 2 + vec_rot[1] ** 2 + vec_rot[2] ** 2))
+# vec = [1, 2, 3]
+# vec_rot = q1.rot_apply(vec)
 
-print(vec, vec_rot)
+# print(math.sqrt(vec[0] ** 2 + vec[1] ** 2 + vec[2] ** 2))
+# print(math.sqrt(vec_rot[0] ** 2 + vec_rot[1] ** 2 + vec_rot[2] ** 2))
+
+# print(vec, vec_rot)
