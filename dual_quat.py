@@ -1,0 +1,51 @@
+import quat
+
+class dual_quat() :
+    def __init__(self, translation, rotation) :
+        '''
+        Constructs a dual quaternion represention a translation followed by a rotation.
+
+        dual_quat = rotation + epsilon * (1/2 translation * rotation)
+        
+        Args
+        ---
+        translation : quat or array_like
+            Translation provided either as a pure quaternion or an R^3 translation vector
+        rotation : quat or array_like
+            Rotation provided as a unit quaternion
+        '''
+        if type(translation) == quat :
+            qt = translation
+        elif len(translation) == 3 :
+            qt = quat([0, *translation])
+        elif len(translation) == 4 :
+            qt = quat(translation)
+
+        if not qt.is_pure() :
+            raise BaseException(f'Translation {qt} must be a pure quaternion')
+
+        if type(rotation) == quat :
+            qr = rotation
+            qr.normalize()
+        else :
+            qr = quat(rotation)
+
+        self.real = qr
+        self.dual = 0.5 * qt * qr
+
+    def __str__(self) :
+        return f'r: ({self.real}); e: ({self.dual})'
+
+    
+
+# q0 = quat([0, 105, 5, 5])
+# q1 = quat([0.5, -0.5, 0.5, 0.5])
+# dq = dual_quat(q0, q1)
+
+# vec = [1, 2, 3]
+# vec_rot = q1.rot_apply(vec)
+
+# print(math.sqrt(vec[0] ** 2 + vec[1] ** 2 + vec[2] ** 2))
+# print(math.sqrt(vec_rot[0] ** 2 + vec_rot[1] ** 2 + vec_rot[2] ** 2))
+
+# print(vec, vec_rot)
