@@ -47,14 +47,14 @@ ax = fig.add_subplot(111, projection='3d')
 
 ########################################################################################################
 
-n = 50000
+n = 100
 
 rand_quats = np.random.normal([0, 0, 0, 0], [1, 1, 1, 1], (n, 4))
 
 transforms = []
 
 for i in range(n) :
-    transforms.append(dq.from_trans(np.random.normal([5, 5, 5], [0, 2, 0]), q(rand_quats[i]).normalized()))
+    transforms.append(dq.from_trans(np.random.normal([5, 5, 5], [4, 2, 3]), q(rand_quats[i]).normalized()))
 
 
 points = np.zeros((n, 3))
