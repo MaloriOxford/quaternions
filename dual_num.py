@@ -16,7 +16,14 @@ class dual_num() :
         
         else :
             raise ArithmeticError(f'Dual number square root does not exist for {self}')
-
+        
+    def __truediv__(self, p) :
+        '''Scalar or dual number division.'''
+        if type(p) == dual_num :
+            return dual_num((self.r * p.r) / p.r ** 2, (p.r * self.d - p.d * self.r) / p.r ** 2)
+        
+        else :
+            return dual_num(self.r / p, self.d / p)
 
     def __str__(self) :
         return f'r: {self.r}, d: {self.d}'

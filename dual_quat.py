@@ -58,6 +58,25 @@ class dual_quat() :
 
         return dual_quat(qr, 0.5 * qt * qr)
     
+    def as_trans(self) :
+        '''
+        Returns the transformation and rotation defined by a unit dual quaternion.
+
+        dq = A + eB
+
+        Returns
+        ---
+        translation : list
+            Translation vector 2 * B * A^-1
+        rotation : quat
+            Rotation quaternion A
+        '''
+        if self.is_unit() :
+            vec = 2 * self.d * self.r.conj()
+            return [vec.x, vec.y, vec.z], self.r
+        else :
+            raise BaseException('Only unit dual quaternions are valid representations of 3D transforms')
+    
     def q_conj(self) :
         '''
         Returns the quaternion conjugate of the dual quaternion.
@@ -113,20 +132,3 @@ class dual_quat() :
 
     def __str__(self) :
         return f'r: ({self.r}); d: ({self.d})'
-
-    
-
-q0 = quat([0, 105, 5, 5])
-q1 = quat([0.5, -0.5, 0.5, 0.5])
-dq0 = dual_quat.from_trans(q0, q1)
-dq1 = dual_quat(quat([0.75, 0.25, 0, 0]), [5, 2, 3, 4])
-
-print(dq1.norm())
-
-# vec = [1, 2, 3]
-# vec_rot = q1.rot_apply(vec)
-
-# print(math.sqrt(vec[0] ** 2 + vec[1] ** 2 + vec[2] ** 2))
-# print(math.sqrt(vec_rot[0] ** 2 + vec_rot[1] ** 2 + vec_rot[2] ** 2))
-
-# print(vec, vec_rot)
