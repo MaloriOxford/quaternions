@@ -15,28 +15,12 @@ class quat() :
         self.x = q[1]
         self.y = q[2]
         self.z = q[3]
-
-    def dot(self, p: Self) :
-        '''
-        Performs the dot product on the two quaternions.
-
-        Args
-        ---
-        p : quat
-            Quaternion to dot this one with
-
-        Returns
-        ---
-        dot : float
-            The dot product of the two quaternions
-        '''
-        return self.w * p.w + self.x * p.x + self.y * p.y + self.z * p.z
     
     def norm(self) :
         '''
         Returns the 2 norm of the quaternion.
         '''
-        return math.sqrt(self.dot(self))
+        return math.sqrt(self.w ** 2 + self.x ** 2 + self.y ** 2 + self.z ** 2)
     
     def normalized(self) :
         '''
@@ -51,8 +35,12 @@ class quat() :
             self.z / norm
         ])
 
-    def inv(self) :
-        '''Returns the inverted quaternion.'''
+    def conj(self) :
+        '''
+        Returns the conjugate of the quaternion.
+        
+        For unit quaternions, this is the inverse, and for unit quaternions representing rotations, it is the inverse rotation.
+        '''
         return quat([
             self.w,
             -self.x,
@@ -77,7 +65,7 @@ class quat() :
         if not self.is_unit() :
             raise ArithmeticError('Only unit quaternions are valid representations of rotations')
         
-        vec_rot = self.inv() * quat([0, *vec]) * self
+        vec_rot = self.conj() * quat([0, *vec]) * self
 
         return [
             vec_rot.x,
@@ -86,16 +74,16 @@ class quat() :
         ]
         
     def is_pure(self) :
-        '''
-        Check if this is a pure quaternion.
-        '''
+        '''Check if this is a pure quaternion.'''
         return True if self.w == 0 else False
     
     def is_unit(self) :
-        '''
-        Check if this is a unit quaternion.
-        '''
+        '''Check if this is a unit quaternion.'''
         return True if abs(self.norm() - 1) <= 1e-9 else False
+    
+    def is_orth(self, p: Self) :
+        '''Check if this quaternion is orthogonal to the quaternion p.'''
+        return True if (self.w * p.w + self.x * p.x + self.y * p.y + self.z * p.z) <= 1e-9 else False
 
     def __mul__(self, p: Self) :
         '''
@@ -131,6 +119,7 @@ class quat() :
         ])
     
     def __add__(self, p: Self) :
+        '''Quaternion addition.'''
         return quat([
             self.w + p.w,
             self.x + p.x,

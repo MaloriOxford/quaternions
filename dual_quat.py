@@ -1,4 +1,5 @@
 from quat import quat
+from typing import Self
 import math
 
 class dual_quat() :
@@ -55,6 +56,43 @@ class dual_quat() :
             qr = quat(rotation)
 
         return dual_quat(qr, 0.5 * qt * qr)
+    
+    def q_conj(self) :
+        '''
+        Returns the quaternion conjugate of the dual quaternion.
+        
+        dq = A + eB -> dq* = A* + eB*'''
+        return dual_quat(self.r.conj(), self.d.conj())
+    
+    def d_conj(self) :
+        '''
+        Returns the dual number conjugate of the dual quaternion.
+
+        dq = A + eB -> bar{dq} = A - eB
+        '''
+        return dual_quat(self.r, -1 * self.d)
+    
+    def t_conj(self) :
+        '''
+        Returns the total conjugate of the dual quaternion.
+
+        dq = A + eB -> bar{dq*} = A* - eB*
+        '''
+        return self.q_conj().d_conj()
+    
+    def is_unit(self) :
+        return True if self.r.is_unit() and self.r.is_orth(self.d) else False
+
+    def is_pure(self) :
+        pass
+
+    def __add__(self, p: Self):
+        '''Dual quaternion addition.'''
+        return dual_quat(self.r + p.r, self.d + p.d)
+    
+    def __mul__(self, p: Self) :
+        '''Dual quaternion multiplication.'''
+        return dual_quat(self.r * p.r, self.r * p.d + self.d * p.r)
 
     def __str__(self) :
         return f'r: ({self.r}); e: ({self.d})'
@@ -63,11 +101,10 @@ class dual_quat() :
 
 q0 = quat([0, 105, 5, 5])
 q1 = quat([0.5, -0.5, 0.5, 0.5])
-dq = dual_quat.from_trans(q0, q1)
+dq0 = dual_quat.from_trans(q0, q1)
+dq1 = dual_quat(quat([0.75, 0.25, 0, 0]).normalized(), [5, 2, 3, 4])
 
-print(dq)
-
-# print(q0.normalized().norm())
+print(dq0.is_unit())
 
 # vec = [1, 2, 3]
 # vec_rot = q1.rot_apply(vec)
