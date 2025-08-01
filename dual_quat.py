@@ -1,4 +1,5 @@
 from quat import quat
+from dual_num import dual_num
 from typing import Self
 import math
 
@@ -80,31 +81,47 @@ class dual_quat() :
         '''
         return self.q_conj().d_conj()
     
+    def inv(self) :
+        '''Returns the dual quaternion inverse.'''
+        r_conj = self.r.conj()
+        return dual_quat(r_conj, -1 * r_conj * self.d * r_conj)
+    
+    def norm(self) :
+        '''Returns the 2 norm of the dual quaternion.'''
+        norm = self * self.q_conj()
+
+        return dual_num(norm.r.w, norm.d.w).sqrt()
+    
     def is_unit(self) :
         return True if self.r.is_unit() and self.r.is_orth(self.d) else False
 
-    def is_pure(self) :
-        pass
-
-    def __add__(self, p: Self):
+    def __add__(self, p: Self) :
         '''Dual quaternion addition.'''
         return dual_quat(self.r + p.r, self.d + p.d)
     
     def __mul__(self, p: Self) :
         '''Dual quaternion multiplication.'''
         return dual_quat(self.r * p.r, self.r * p.d + self.d * p.r)
+    
+    def __rmul__(self, p) :
+        '''Scalar multiplication.'''
+        return dual_quat(p * self.r, p * self.d)
+    
+    def __truediv__(self, p) :
+        '''Scalar division.'''
+        return dual_quat(self.r / p, self.d / p)
 
     def __str__(self) :
-        return f'r: ({self.r}); e: ({self.d})'
+        return f'r: ({self.r}); d: ({self.d})'
 
     
 
 q0 = quat([0, 105, 5, 5])
 q1 = quat([0.5, -0.5, 0.5, 0.5])
 dq0 = dual_quat.from_trans(q0, q1)
-dq1 = dual_quat(quat([0.75, 0.25, 0, 0]).normalized(), [5, 2, 3, 4])
+dq1 = dual_quat(quat([0.75, 0.25, 0, 0]), [5, 2, 3, 4])
 
-print(dq0.is_unit())
+print(dq1.norm())
 
 # vec = [1, 2, 3]
 # vec_rot = q1.rot_apply(vec)

@@ -11,10 +11,10 @@ class quat() :
         q : array_like, opt.
             Scalar first quaternion q(w, x, y, z)
         '''
-        self.w = q[0]
-        self.x = q[1]
-        self.y = q[2]
-        self.z = q[3]
+        self.w = float(q[0])
+        self.x = float(q[1])
+        self.y = float(q[2])
+        self.z = float(q[3])
     
     def norm(self) :
         '''
@@ -47,6 +47,14 @@ class quat() :
             -self.y,
             -self.z
         ])
+    
+    def inv(self) :
+        '''
+        Returns the inverse of the quaternion.
+        
+        Note: this is equivelant to the conjugate only for unit quaternions.
+        '''
+        return self.conj() / self.norm()
     
     def rot_apply(self, vec) :
         '''
@@ -129,9 +137,6 @@ class quat() :
     
     def __truediv__(self, p) :
         '''Scalar division.'''
-        if type(p) == quat :
-            raise NotImplementedError('Division by a quaternion not defined')
-        
         return quat([
             self.w / p,
             self.x / p,
