@@ -47,16 +47,17 @@ ax = fig.add_subplot(111, projection='3d')
 
 ########################################################################################################
 
-q0 = q([0, 5, 5, 5])
-q1 = q([0.5, 0.5, 0.5, 0.5])
-dq0 = dq.from_trans(q0, q1)
-dq1 = dq(q([0.75, 0.25, 0, 0]), [5, 2, 3, 4])
-dq2 = dq.from_trans([0, 1, 2, 3], q([1, 2, 3, 4]).normalized())
-dq3 = dq0 * dq2
+n = 50000
+
+rand_quats = np.random.normal([0, 0, 0, 0], [1, 1, 1, 1], (n, 4))
+
+transforms = []
+
+for i in range(n) :
+    transforms.append(dq.from_trans(np.random.normal([5, 5, 5], [0, 2, 0]), q(rand_quats[i]).normalized()))
 
 
-transforms = [dq0, dq0 * dq0, dq2, dq3]
-points = np.zeros((len(transforms), 3))
+points = np.zeros((n, 3))
 
 for idx, trans in enumerate(transforms) :
     points[idx] = trans.as_trans()[0]
