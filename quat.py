@@ -73,7 +73,7 @@ class quat() :
         if not self.is_unit() :
             raise ArithmeticError('Only unit quaternions are valid representations of rotations')
         
-        vec_rot = self.conj() * quat([0, *vec]) * self
+        vec_rot = self * quat([0, *vec]) * self.conj()
 
         return [
             vec_rot.x,
@@ -109,14 +109,13 @@ class quat() :
         q2 : ndarray
             self.q * p
         '''
-
         return quat([
             self.w * p.w - self.x * p.x - self.y * p.y - self.z * p.z,
-            self.w * p.x + self.x * p.w - self.y * p.z + self.z * p.y,
-            self.w * p.y + self.x * p.z + self.y * p.w - self.z * p.x,
-            self.w * p.z - self.x * p.y + self.y * p.x + self.z * p.w,
+            self.w * p.x + self.x * p.w + self.y * p.z - self.z * p.y,
+            self.w * p.y - self.x * p.z + self.y * p.w + self.z * p.x,
+            self.w * p.z + self.x * p.y - self.y * p.x + self.z * p.w,
         ])
-    
+
     def __rmul__(self, p) :
         '''Non-quaternion multiplication by a scalar.'''
         return quat([

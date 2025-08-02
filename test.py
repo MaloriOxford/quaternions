@@ -54,20 +54,54 @@ rand_quats = np.random.normal([0, 0, 0, 0], [1, 1, 1, 1], (n, 4))
 transforms = []
 
 for i in range(n) :
-    transforms.append(dq.from_trans(np.random.normal([5, 5, 5], [4, 2, 3]), q(rand_quats[i]).normalized()))
+    transforms.append(dq.from_trans(np.random.normal([0, 0, 0], [1, 1, 1]), q(rand_quats[i]).normalized()))
 
+def path(idx) :
+    a = idx / 50
+    
+    x = a * 1
+    y = a * 2
+    z = a * 3
 
-points = np.zeros((n, 3))
+    return [x, y, z]
+
+# transforms = [dq.from_trans([0, 1, 0],q([0.1, 0.5, 0.5, 0.5]).normalized()), dq.from_trans([0, 0, 0],q([0.5, -0.5, -0.5, -0.5]).normalized())]
+
+# transforms.append(transforms[1] * transforms[0])
+
+points = []
 
 for idx, trans in enumerate(transforms) :
-    points[idx] = trans.as_trans()[0]
-    dir = trans.as_trans()[1].rot_apply([1, 0, 0])
+    components = (dq.from_trans(path(idx), q()) * trans).as_trans()
+    # components = trans.as_trans()
 
-    ax.arrow3D(*trans.as_trans()[0],
-            *dir,
+    points.append(components[0])
+    dir_x = components[1].rot_apply([1, 0, 0])
+    dir_y = components[1].rot_apply([0, 1, 0])
+    dir_z = components[1].rot_apply([0, 0, 1])
+
+    ax.arrow3D(*components[0],
+            *dir_x,
+            mutation_scale = 10,
+            arrowstyle = "-|>",
+            linestyle = 'solid',
+            color = 'red')
+    
+    ax.arrow3D(*components[0],
+            *dir_y,
+            mutation_scale = 10,
+            arrowstyle = "-|>",
+            linestyle = 'solid',
+            color = 'green')
+    
+    ax.arrow3D(*components[0],
+            *dir_z,
             mutation_scale=10,
-            arrowstyle="-|>",
-            linestyle='dashed')
+            arrowstyle = "-|>",
+            linestyle = 'solid',
+            color = 'blue')
+
+points = np.array(points)
 
 scatter = ax.scatter(points[:,0], points[:,1], points[:,2], c=range(np.shape(points)[0]), cmap='viridis')
 
@@ -75,9 +109,9 @@ ax.set_xlabel('x')
 ax.set_ylabel('y')
 ax.set_zlabel('z')
 
-ax.set_xlim(0, 10)
-ax.set_ylim(0, 10)
-ax.set_zlim(0, 10)
+ax.set_xlim(-3, 3)
+ax.set_ylim(-3, 3)
+ax.set_zlim(-3, 3)
 
 fig.colorbar(scatter)
 

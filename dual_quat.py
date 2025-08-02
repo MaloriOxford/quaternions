@@ -41,7 +41,7 @@ class dual_quat() :
         if type(translation) == quat :
             qt = translation
         elif len(translation) == 3 :
-            qt = quat([0, *translation])
+            qt = quat([0, translation[0], translation[1], translation[2]])
         elif len(translation) == 4 :
             qt = quat(translation)
 
@@ -119,8 +119,11 @@ class dual_quat() :
         return dual_quat(self.r + p.r, self.d + p.d)
     
     def __mul__(self, p: Self) :
-        '''Dual quaternion multiplication.'''
-        return dual_quat(self.r * p.r, self.r * p.d + self.d * p.r)
+        '''Dual quaternion multiplication on the right.
+        
+        dq2 = self.r * p.r + e * (self.r * p.d + self.d * p.r)
+        '''
+        return dual_quat(self.r * p.r, (self.r * p.d) + (self.d * p.r))
     
     def __rmul__(self, p) :
         '''Scalar multiplication.'''
