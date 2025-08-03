@@ -5,6 +5,7 @@ from matplotlib.patches import FancyArrowPatch
 from mpl_toolkits.mplot3d.proj3d import proj_transform
 from mpl_toolkits.mplot3d.axes3d import Axes3D
 import numpy as np
+from tqdm import tqdm
 
 class Arrow3D(FancyArrowPatch):
 
@@ -47,72 +48,77 @@ ax = fig.add_subplot(111, projection='3d')
 
 ########################################################################################################
 
-n = 100
+# n = 100000
 
-rand_quats = np.random.normal([0, 0, 0, 0], [1, 1, 1, 1], (n, 4))
+# rand_quats = np.random.normal([0, 0, 0, 0], [1, 1, 1, 1], (n, 4))
 
-transforms = []
+# transforms = []
 
-for i in range(n) :
-    transforms.append(dq.from_trans(np.random.normal([0, 0, 0], [1, 1, 1]), q(rand_quats[i]).normalized()))
+# for i in tqdm(range(n)) :
+#     transforms.append(dq.from_trans(np.random.normal([0, 0, 0], [1, 1, 1]), q(rand_quats[i]).normalized()))
 
-def path(idx) :
-    a = idx / 50
+# def path(idx) :
+#     a = idx / 50
     
-    x = a * 1
-    y = a * 2
-    z = a * 3
+#     x = a ** 3
+#     y = a ** 3
+#     z = a ** 3
 
-    return [x, y, z]
+#     return [x, y, z]
 
-# transforms = [dq.from_trans([0, 1, 0],q([0.1, 0.5, 0.5, 0.5]).normalized()), dq.from_trans([0, 0, 0],q([0.5, -0.5, -0.5, -0.5]).normalized())]
+# points = []
 
-# transforms.append(transforms[1] * transforms[0])
+# for idx, trans in enumerate(tqdm(transforms)) :
+#     if idx == 0 :
+#         components = (trans).as_trans()
+#     else :
+#         components = (transforms[idx - 1] * trans).as_trans()
 
-points = []
+#     points.append(components[0])
+#     dir_x = components[1].rot_apply([0.5, 0, 0])
+#     dir_y = components[1].rot_apply([0, 0.5, 0])
+#     dir_z = components[1].rot_apply([0, 0, 0.5])
 
-for idx, trans in enumerate(transforms) :
-    components = (dq.from_trans(path(idx), q()) * trans).as_trans()
-    # components = trans.as_trans()
-
-    points.append(components[0])
-    dir_x = components[1].rot_apply([1, 0, 0])
-    dir_y = components[1].rot_apply([0, 1, 0])
-    dir_z = components[1].rot_apply([0, 0, 1])
-
-    ax.arrow3D(*components[0],
-            *dir_x,
-            mutation_scale = 10,
-            arrowstyle = "-|>",
-            linestyle = 'solid',
-            color = 'red')
+#     # ax.arrow3D(*components[0],
+#     #         *dir_x,
+#     #         mutation_scale = 10,
+#     #         arrowstyle = "-|>",
+#     #         linestyle = 'solid',
+#     #         color = 'red')
     
-    ax.arrow3D(*components[0],
-            *dir_y,
-            mutation_scale = 10,
-            arrowstyle = "-|>",
-            linestyle = 'solid',
-            color = 'green')
+#     # ax.arrow3D(*components[0],
+#     #         *dir_y,
+#     #         mutation_scale = 10,
+#     #         arrowstyle = "-|>",
+#     #         linestyle = 'solid',
+#     #         color = 'green')
     
-    ax.arrow3D(*components[0],
-            *dir_z,
-            mutation_scale=10,
-            arrowstyle = "-|>",
-            linestyle = 'solid',
-            color = 'blue')
+#     # ax.arrow3D(*components[0],
+#     #         *dir_z,
+#     #         mutation_scale=10,
+#     #         arrowstyle = "-|>",
+#     #         linestyle = 'solid',
+#     #         color = 'blue')
 
-points = np.array(points)
+# points = np.array(points)
 
-scatter = ax.scatter(points[:,0], points[:,1], points[:,2], c=range(np.shape(points)[0]), cmap='viridis')
+# scatter = ax.scatter(points[:,0], points[:,1], points[:,2], c=range(np.shape(points)[0]), cmap='viridis')
+# fig.colorbar(scatter)
 
-ax.set_xlabel('x')
-ax.set_ylabel('y')
-ax.set_zlabel('z')
+# ax.plot(points[:,0], points[:,1], points[:,2])
 
-ax.set_xlim(-3, 3)
-ax.set_ylim(-3, 3)
-ax.set_zlim(-3, 3)
+# ax.set_xlabel('x')
+# ax.set_ylabel('y')
+# ax.set_zlabel('z')
 
-fig.colorbar(scatter)
+# # ax.set_xlim(-3, 3)
+# # ax.set_ylim(-3, 3)
+# # ax.set_zlim(-3, 3)
 
-plt.show()
+# plt.show()
+
+########################################################################################################
+
+q0 = q.from_axis(3, [1, 2, 110])
+
+print(q0.norm())

@@ -80,6 +80,44 @@ class quat() :
             vec_rot.y,
             vec_rot.z
         ]
+    
+    def from_axis(theta: float, u: list[float]) :
+        '''
+        Constructs a unit quaternion from the axis angle representation.
+
+        q = cos(theta/2) + u sin(theta/2)
+
+        Args
+        ---
+        theta : float
+            The angle of the rotation in radians between 0 and pi
+        u : list[float]
+            Unit vector representing the angle the rotation is about
+        '''
+        theta = theta / 2
+        coef = math.sin(theta) / math.sqrt(u[0] ** 2 + u[1] ** 2 + u[2] ** 2)
+        return quat([math.cos(theta), u[0] * coef, u[1] * coef, u[2] * coef])
+
+    def as_axis(self) :
+        '''
+        Returns the axis angle representation of a unit quaternion.
+
+        q = cos(theta/2) + u sin(theta/2)
+
+        Returns
+        ---
+        theta : float
+            The angle of the rotation in radians between 0 and pi
+        u : list[float]
+            Unit vector representing the angle the rotation is about
+        '''
+        if not self.is_unit() :
+            raise ArithmeticError('Only unit quaternions are valid representations of rotations')
+        
+        theta = math.acos(self.w)
+        coef = math.sin(theta)
+        return 2 * theta, [self.x / coef, self.y / coef, self.z / coef]
+
         
     def is_pure(self) :
         '''Check if this is a pure quaternion.'''
