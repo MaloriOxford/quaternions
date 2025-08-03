@@ -76,6 +76,87 @@ class dual_quat() :
             return [vec.x, vec.y, vec.z], self.r
         else :
             raise BaseException('Only unit dual quaternions are valid representations of 3D transforms')
+
+    def from_screw(u: list[float], m: list[float], theta: float, d: float) :
+        '''
+        Constructs a unit dual quaternion from the screw parameters of a transform.
+
+        Args
+        ---
+        u : list[float]
+            Unit vector representing the screw axis
+        m : list[float]
+            Moment vector
+        theta : float
+            Rotation angle
+        d : float
+            Displacement distance
+        '''
+        theta = theta / 2
+        cos = math.cos(theta)
+        sin = math.sin(theta)
+        coef = d / 2
+
+        return dual_quat([cos, u[0] * sin, u[1] * sin, u[2] * sin],
+                         [-coef * sin,
+                          coef * u[0] * cos + sin * m[0],
+                          coef * u[1] * cos + sin * m[1],
+                          coef * u[2] * cos + sin * m[2]])
+
+    def as_screw(self) :
+        '''
+        Returns the screw parameters of a unit dual quaternion.
+
+        Returns
+        ---
+        u : list[float]
+            Unit vector representing the screw axis
+        m : list[float]
+            Moment vector
+        theta : float
+            Rotation angle
+        d : float
+            Displacement distance
+        '''
+        if not self.is_unit() :
+            raise BaseException('Only unit dual quaternions are valid representations of 3D transforms')
+        
+        theta, u = self.r.as_axis()
+        vec, _ = self.as_trans()
+        
+        d = vec[0]*u[0] + vec[1]*u[1] + vec[2]*u[2]
+        
+        cotan = 1 / math.tan(theta / 2)
+        m = [
+            0.5 * (vec[1]*u[2] - vec[2]*u[1] + (vec[0] - d * u[0]) * cotan),
+            0.5 * (vec[2]*u[0] - vec[0]*u[2] + (vec[1] - d * u[1]) * cotan),
+            0.5 * (vec[0]*u[1] - vec[1]*u[0] + (vec[2] - d * u[2]) * cotan)
+        ]
+    
+        return u, m, theta, d
+        
+    def sclerp(self, to: Self, tau: float) :
+        '''
+        Perform Screw Linear Interpolation (SCLERP) from the current unit dual quaternion to another.
+
+        Args
+        ---
+        to : dual_quat
+            The unit dual quaternion to perform interpolation to from this one
+        tau : float
+            A value between 0 and 1 representing how far along the interpolation to retrun a value for
+
+        Returns
+        ---
+        dq : dual_quat
+            A dual quaternion interpolated between self and to
+        '''
+        if not (self.is_unit() and to.is_unit()) :
+            raise BaseException('Only unit dual quaternions are valid representations of 3D transforms')
+        elif not (tau >= 0 and tau <= 1) :
+            raise BaseException(f'The value of tau {tau} must be in [0,1]')
+        
+        return self * (self.inv() * to) ** tau
     
     def q_conj(self) :
         '''
@@ -132,6 +213,11 @@ class dual_quat() :
     def __truediv__(self, p) :
         '''Scalar division.'''
         return dual_quat(self.r / p, self.d / p)
+    
+    def __pow__(self, p) :
+        '''Unit dual quaternion raised to the power p.'''
+        u, m, theta, d = self.as_screw()
+        return dual_quat.from_screw(u, m, p * theta, p * d)
 
     def __str__(self) :
         return f'r: ({self.r}); d: ({self.d})'
