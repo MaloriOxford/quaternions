@@ -53,7 +53,8 @@ ax = fig.add_subplot(111, projection='3d')
 # rand_quats = np.random.normal([0, 0, 0, 0], [1, 1, 1, 1], (n, 4))
 dq0 = dq.from_trans([1, 2, 3], q([1, 1, 1, 1]).normalized())
 dq1 = dq.from_trans([3, 2, 3], q([1, 0, 1, 1]).normalized())
-transforms = [dq0, dq0.sclerp(dq1, 0.25), dq0.sclerp(dq1, 0.5), dq0.sclerp(dq1, 0.75), dq1]
+dq2 = dq.from_trans([0, 0, 0], q([1, 0, 1, 0]).normalized())
+transforms = [dq0, *dq0.sclerp_n(dq1, 10), dq1, *dq1.sclerp_n(dq2, 10), dq2, *dq2.sclerp_n(dq0, 10), dq0]
 
 # for i in tqdm(range(n)) :
 #     transforms.append(dq.from_trans(np.random.normal([0, 0, 0], [1, 1, 1]), q(rand_quats[i]).normalized()))
@@ -70,10 +71,12 @@ transforms = [dq0, dq0.sclerp(dq1, 0.25), dq0.sclerp(dq1, 0.5), dq0.sclerp(dq1, 
 points = []
 
 for idx, trans in enumerate(tqdm(transforms)) :
-    if idx == 0 :
-        components = (trans).as_trans()
-    else :
-        components = (transforms[idx - 1] * trans).as_trans()
+    # if idx == 0 :
+    #     components = (trans).as_trans()
+    # else :
+    #     components = (transforms[idx - 1] * trans).as_trans()
+
+    components = trans.as_trans()
 
     points.append(components[0])
     dir_x = components[1].rot_apply([0.5, 0, 0])

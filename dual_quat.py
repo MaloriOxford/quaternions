@@ -135,13 +135,13 @@ class dual_quat() :
     
         return u, m, theta, d
         
-    def sclerp(self, to: Self, tau: float) :
+    def sclerp(self, stop: Self, tau: float) :
         '''
         Perform Screw Linear Interpolation (SCLERP) from the current unit dual quaternion to another.
 
         Args
         ---
-        to : dual_quat
+        stop : dual_quat
             The unit dual quaternion to perform interpolation to from this one
         tau : float
             A value between 0 and 1 representing how far along the interpolation to retrun a value for
@@ -151,12 +151,34 @@ class dual_quat() :
         dq : dual_quat
             A dual quaternion interpolated between self and to
         '''
-        if not (self.is_unit() and to.is_unit()) :
+        if not (self.is_unit() and stop.is_unit()) :
             raise BaseException('Only unit dual quaternions are valid representations of 3D transforms')
         elif not (tau >= 0 and tau <= 1) :
             raise BaseException(f'The value of tau {tau} must be in [0,1]')
         
-        return self * (self.inv() * to) ** tau
+        # May need to implement check to ensure shortest path given double coverage problem (check (self.r * stop.r).w < 0)
+        start = self
+
+        return start * (start.inv() * stop) ** tau
+    
+    def sclerp_n(self, stop: Self, n: float) :
+        '''
+        Returns n equally spaced dual quaternions interpolated between self and stop.
+
+        Returns
+        ---
+        dqs : list[dual_quat]
+        '''
+        if n > 0 :
+            d_tau = 1 / (n + 1)
+        else :
+            raise ZeroDivisionError
+
+        dqs = []
+        for i in range(n) :
+            dqs.append(self.sclerp(stop, (i + 1) * d_tau))
+
+        return dqs
     
     def q_conj(self) :
         '''
