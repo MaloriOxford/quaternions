@@ -187,6 +187,12 @@ class quat() :
             self.y / p,
             self.z / p
         ])
+    
+    def __eq__(self, p):
+        if type(p) == quat :
+            return (self.w, self.x, self.y, self.z) == (p.w, p.x, p.y, p.z)
+        else :
+            return NotImplemented
 
     def __str__(self):
         return f'w: {self.w}, x: {self.x}, y: {self.y}, z: {self.z}'
