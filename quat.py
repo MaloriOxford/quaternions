@@ -20,7 +20,7 @@ class quat() :
         '''
         Returns the 2 norm of the quaternion.
         '''
-        return math.sqrt(self.w ** 2 + self.x ** 2 + self.y ** 2 + self.z ** 2)
+        return math.sqrt(self.sum_sq(self))
     
     def normalized(self) :
         '''
@@ -114,6 +114,9 @@ class quat() :
         if not self.is_unit() :
             raise ArithmeticError('Only unit quaternions are valid representations of rotations')
         
+        if abs(self.w - 1) <= 1e-9 :
+            return 0, [0, 0, 0]
+        
         theta = math.acos(self.w)
         coef = math.sin(theta)
         return 2 * theta, [self.x / coef, self.y / coef, self.z / coef]
@@ -129,7 +132,11 @@ class quat() :
     
     def is_orth(self, p: Self) :
         '''Check if this quaternion is orthogonal to the quaternion p.'''
-        return True if (self.w * p.w + self.x * p.x + self.y * p.y + self.z * p.z) <= 1e-9 else False
+        return True if self.sum_sq(p) <= 1e-9 else False
+    
+    def sum_sq(self, p: Self) :
+        '''Returns the sum of the squares of the elements of two quaternions.'''
+        return self.w * p.w + self.x * p.x + self.y * p.y + self.z * p.z
 
     def __mul__(self, p: Self) :
         '''

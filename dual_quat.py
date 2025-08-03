@@ -10,9 +10,9 @@ class dual_quat() :
 
         Args
         ---
-        real : array_like or quat
+        real : array_like or quat, opt.
             Real component of the dual quaternion
-        dual : array_like or quat
+        dual : array_like or quat, opt.
             Real component of the dual quaternion
         '''
         if type(real) == quat :
@@ -126,7 +126,11 @@ class dual_quat() :
         
         d = vec[0]*u[0] + vec[1]*u[1] + vec[2]*u[2]
         
-        cotan = 1 / math.tan(theta / 2)
+        if not theta == 0 and not theta == math.pi :
+            cotan = 1 / math.tan(theta / 2)
+        else :
+            raise ZeroDivisionError
+        
         m = [
             0.5 * (vec[1]*u[2] - vec[2]*u[1] + (vec[0] - d * u[0]) * cotan),
             0.5 * (vec[2]*u[0] - vec[0]*u[2] + (vec[1] - d * u[1]) * cotan),
@@ -156,9 +160,10 @@ class dual_quat() :
         elif not (tau >= 0 and tau <= 1) :
             raise BaseException(f'The value of tau {tau} must be in [0,1]')
         
-        # May need to implement check to ensure shortest path given double coverage problem (check (self.r * stop.r).w < 0)
         start = self
-
+        if start.r.sum_sq(stop.r) < 0 :
+            start = -1 * start
+            
         return start * (start.inv() * stop) ** tau
     
     def sclerp_n(self, stop: Self, n: float) :
