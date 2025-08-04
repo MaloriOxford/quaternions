@@ -126,8 +126,7 @@ class dual_quat() :
         vec, _ = self.as_trans()
         
         d = vec[0]*u[0] + vec[1]*u[1] + vec[2]*u[2]
-        
-        if not theta == 0 and not theta == math.pi :
+        if not theta == 0 and not theta == 2 * math.pi :
             cotan = 1 / math.tan(theta / 2)
         else :
             raise ZeroDivisionError
