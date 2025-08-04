@@ -2,6 +2,7 @@ from quat import quat
 from dual_num import dual_num
 from typing import Self
 import math
+import numpy as np
 
 class dual_quat() :
     def __init__(self, real = quat([1, 0, 0, 0]), dual = quat([1, 0, 0, 0])) :
@@ -161,10 +162,22 @@ class dual_quat() :
             raise BaseException(f'The value of tau {tau} must be in [0,1]')
         
         start = self
-        if start.r.sum_sq(stop.r) < 0 :
-            start = -1 * start
+
+        if start.r != stop.r :
+            if start.r.sum_sq(stop.r) < 0 :
+                start = -1 * start
+                
+            return start * (start.inv() * stop) ** tau
+        else :
+            start_vec, _ = start.as_trans()
+            stop_vec, _ = stop.as_trans()
+            lin_interp = [
+                np.interp(tau, [0, 1], [start_vec[0], stop_vec[0]]),
+                np.interp(tau, [0, 1], [start_vec[1], stop_vec[1]]),
+                np.interp(tau, [0, 1], [start_vec[2], stop_vec[2]])
+                ]
             
-        return start * (start.inv() * stop) ** tau
+            return dual_quat.from_trans(lin_interp, start.r)
     
     def sclerp_n(self, stop: Self, n: float) :
         '''

@@ -55,14 +55,14 @@ ax = fig.add_subplot(111, projection='3d')
 transforms = []
 
 cleaning = [
-    dq.from_trans([0,0,0],q([1, 0, 0, 0.02]).normalized()),
-    dq.from_trans([0,0,-1],q([1, 0, 0, 0.01]).normalized()),
-    dq.from_trans([0,-0.5,-1],q([1, 0, 0, 0.02]).normalized()),
-    dq.from_trans([0,-0.5,0],q([1, 0, 0, 0.01]).normalized()),
-    dq.from_trans([0,-1,0],q([1, 0, 0, 0.02]).normalized()),
-    dq.from_trans([0,-1,-1],q([1, 0, 0, 0.01]).normalized()),
-    dq.from_trans([0,-1.5,-1],q([1, 0, 0, 0.02]).normalized()),
-    dq.from_trans([0,-1.5,0],q([1, 0, 0, 0.01]).normalized())
+    dq.from_trans([0,0,0],q()),
+    dq.from_trans([0,0,-1],q()),
+    dq.from_trans([0,-0.5,-1],q()),
+    dq.from_trans([0,-0.5,0],q()),
+    dq.from_trans([0,-1,0],q()),
+    dq.from_trans([0,-1,-1],q()),
+    dq.from_trans([0,-1.5,-1],q()),
+    dq.from_trans([0,-1.5,0],q())
     ]
 
 nets = [
@@ -134,30 +134,43 @@ for idx, trans in enumerate(tqdm(transforms)) :
     components = trans.as_trans()
 
     points.append(components[0])
-    dir_x = components[1].rot_apply([0.5, 0, 0])
-    dir_y = components[1].rot_apply([0, 0.5, 0])
-    dir_z = components[1].rot_apply([0, 0, 0.5])
+    
+    
+    arrow_len = 0.25
+    arrows = 'facing'
 
-    ax.arrow3D(*components[0],
-            *dir_x,
-            mutation_scale = 10,
-            arrowstyle = "-|>",
-            linestyle = 'solid',
-            color = 'red')
-    
-    # ax.arrow3D(*components[0],
-    #         *dir_y,
-    #         mutation_scale = 10,
-    #         arrowstyle = "-|>",
-    #         linestyle = 'solid',
-    #         color = 'green')
-    
-    # ax.arrow3D(*components[0],
-    #         *dir_z,
-    #         mutation_scale=10,
-    #         arrowstyle = "-|>",
-    #         linestyle = 'solid',
-    #         color = 'blue')
+    if arrows == 'facing' :
+        dir_x = components[1].rot_apply([arrow_len, 0, 0])
+        ax.arrow3D(*components[0],
+                *dir_x,
+                mutation_scale = 10,
+                arrowstyle = "-|>",
+                linestyle = 'solid')
+
+    elif arrows == 'basis' :
+        dir_x = components[1].rot_apply([arrow_len, 0, 0])
+        ax.arrow3D(*components[0],
+                *dir_x,
+                mutation_scale = 10,
+                arrowstyle = "-|>",
+                linestyle = 'solid',
+                color = 'red')
+        
+        dir_y = components[1].rot_apply([0, arrow_len, 0])
+        ax.arrow3D(*components[0],
+                *dir_y,
+                mutation_scale = 10,
+                arrowstyle = "-|>",
+                linestyle = 'solid',
+                color = 'green')
+        
+        dir_z = components[1].rot_apply([0, 0, arrow_len])
+        ax.arrow3D(*components[0],
+                *dir_z,
+                mutation_scale=10,
+                arrowstyle = "-|>",
+                linestyle = 'solid',
+                color = 'blue')
 
 points = np.array(points)
 
