@@ -169,15 +169,7 @@ class dual_quat() :
                 
             return start * (start.inv() * stop) ** tau
         else :
-            start_vec, _ = start.as_trans()
-            stop_vec, _ = stop.as_trans()
-            lin_interp = [
-                np.interp(tau, [0, 1], [start_vec[0], stop_vec[0]]),
-                np.interp(tau, [0, 1], [start_vec[1], stop_vec[1]]),
-                np.interp(tau, [0, 1], [start_vec[2], stop_vec[2]])
-                ]
-            
-            return dual_quat.from_trans(lin_interp, start.r)
+            return self.lerp(stop, tau)
     
     def sclerp_n(self, stop: Self, n: int) :
         '''
@@ -202,6 +194,66 @@ class dual_quat() :
         dqs = []
         for i in range(n) :
             dqs.append(self.sclerp(stop, (i + 1) * d_tau))
+
+        return dqs
+    
+    def lerp(self, stop: Self, tau: float) :
+        '''
+        Perform linear interpolation from the current unit dual quaternion to another using SLERP for the rotaion.
+
+        Args
+        ---
+        stop : dual_quat
+            The unit dual quaternion to perform interpolation to from this one
+        tau : float
+            A value between 0 and 1 representing how far along the interpolation to retrun a value for
+
+        Returns
+        ---
+        dq : dual_quat
+            A dual quaternion interpolated between self and stop
+        '''
+        if not (self.is_unit() and stop.is_unit()) :
+            raise BaseException('Only unit dual quaternions are valid representations of 3D transforms')
+        elif not (tau >= 0 and tau <= 1) :
+            raise BaseException(f'The value of tau {tau} must be in [0,1]')
+        
+        start = self
+        rot = start.r.slerp(stop.r, tau)
+        
+        start_vec, _ = start.as_trans()
+        stop_vec, _ = stop.as_trans()
+        lin_interp = [
+            np.interp(tau, [0, 1], [start_vec[0], stop_vec[0]]),
+            np.interp(tau, [0, 1], [start_vec[1], stop_vec[1]]),
+            np.interp(tau, [0, 1], [start_vec[2], stop_vec[2]])
+            ]
+        
+        return dual_quat.from_trans(lin_interp, rot)
+    
+    def lerp_n(self, stop: Self, n: int) :
+        '''
+        Returns n equally spaced dual quaternions interpolated between self and stop using SLERP for the rotation.
+
+        Args
+        ---
+        stop : quat
+            Unit dual quaternion to interpolate to
+        n : int
+            Number of interpolated dual quaternions to return
+
+        Returns
+        ---
+        dqs : list[dual_quat]
+        '''
+        if n > 0 :
+            d_tau = 1 / (n + 1)
+        else :
+            raise ZeroDivisionError
+
+        dqs = []
+        for i in range(n) :
+            dqs.append(self.lerp(stop, (i + 1) * d_tau))
 
         return dqs
     

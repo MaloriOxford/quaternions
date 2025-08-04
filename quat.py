@@ -156,6 +156,11 @@ class quat() :
         q : quat
             A unit quaternion interpolated between self and stop
         '''
+        if not (self.is_unit() and stop.is_unit()) :
+            raise BaseException('Only unit quaternions are valid representations of rotations')
+        elif not (tau >= 0 and tau <= 1) :
+            raise BaseException(f'The value of tau {tau} must be in [0,1]')
+
         dot = self.sum_sq(stop)
         if dot >= 0 :
             start = self
@@ -216,6 +221,11 @@ class quat() :
         q : quat
             A unit quaternion interpolated between self and stop
         '''
+        if not (self.is_unit() and stop.is_unit()) :
+            raise BaseException('Only unit quaternions are valid representations of rotations')
+        elif not (tau >= 0 and tau <= 1) :
+            raise BaseException(f'The value of tau {tau} must be in [0,1]')
+        
         if self.sum_sq(stop) >= 0 :
             start = self
         else :
