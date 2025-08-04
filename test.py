@@ -1,5 +1,7 @@
 from quat import quat as q
 from dual_quat import dual_quat as dq
+import quat_plot
+
 import matplotlib.pyplot as plt
 from matplotlib.patches import FancyArrowPatch
 from mpl_toolkits.mplot3d.proj3d import proj_transform
@@ -7,92 +9,13 @@ from mpl_toolkits.mplot3d.axes3d import Axes3D
 import numpy as np
 from tqdm import tqdm
 
-class Arrow3D(FancyArrowPatch):
-
-    def __init__(self, x, y, z, dx, dy, dz, *args, **kwargs):
-        super().__init__((0, 0), (0, 0), *args, **kwargs)
-        self._xyz = (x, y, z)
-        self._dxdydz = (dx, dy, dz)
-
-    def draw(self, renderer):
-        x1, y1, z1 = self._xyz
-        dx, dy, dz = self._dxdydz
-        x2, y2, z2 = (x1 + dx, y1 + dy, z1 + dz)
-
-        xs, ys, zs = proj_transform((x1, x2), (y1, y2), (z1, z2), self.axes.M)
-        self.set_positions((xs[0], ys[0]), (xs[1], ys[1]))
-        super().draw(renderer)
-        
-    def do_3d_projection(self, renderer=None):
-        x1, y1, z1 = self._xyz
-        dx, dy, dz = self._dxdydz
-        x2, y2, z2 = (x1 + dx, y1 + dy, z1 + dz)
-
-        xs, ys, zs = proj_transform((x1, x2), (y1, y2), (z1, z2), self.axes.M)
-        self.set_positions((xs[0], ys[0]), (xs[1], ys[1]))
-
-        return np.min(zs) 
-
-def _arrow3D(ax, x, y, z, dx, dy, dz, *args, **kwargs):
-    '''Add an 3d arrow to an `Axes3D` instance.'''
-
-    arrow = Arrow3D(x, y, z, dx, dy, dz, *args, **kwargs)
-    ax.add_artist(arrow)
-
-
-setattr(Axes3D, 'arrow3D', _arrow3D)
-
-fig = plt.figure()
-ax = fig.add_subplot(111, projection='3d')
-
-
 ########################################################################################################
 
 # q0 = q([1, 0, 0, 0]).normalized()
 # q1 = q([0, 0, 0, -1]).normalized()
 
 # rots = [q0, *q0.slerp_n(q1, 10), q1]
-# points = []
-
-# for idx, rot in enumerate(tqdm(rots)) :
-#     points.append([0, 0, 0])
-    
-    
-#     arrow_len = 0.25
-#     arrows = 'facing'
-
-#     if arrows == 'facing' :
-#         dir_x = rot.rot_apply([arrow_len, 0, 0])
-#         ax.arrow3D(*[0, 0, 0],
-#                 *dir_x,
-#                 mutation_scale = 10,
-#                 arrowstyle = "-|>",
-#                 linestyle = 'solid')
-
-#     elif arrows == 'basis' :
-#         dir_x = rot.rot_apply([arrow_len, 0, 0])
-#         ax.arrow3D(*[0, 0, 0],
-#                 *dir_x,
-#                 mutation_scale = 10,
-#                 arrowstyle = "-|>",
-#                 linestyle = 'solid',
-#                 color = 'red')
-        
-#         dir_y = rot.rot_apply([0, arrow_len, 0])
-#         ax.arrow3D(*[0, 0, 0],
-#                 *dir_y,
-#                 mutation_scale = 10,
-#                 arrowstyle = "-|>",
-#                 linestyle = 'solid',
-#                 color = 'green')
-        
-#         dir_z = rot.rot_apply([0, 0, arrow_len])
-#         ax.arrow3D(*[0, 0, 0],
-#                 *dir_z,
-#                 mutation_scale=10,
-#                 arrowstyle = "-|>",
-#                 linestyle = 'solid',
-#                 color = 'blue')
+# points = [[0,0,0]]
 
 ########################################################################################################
 
@@ -124,30 +47,30 @@ nets = [
 for idx_n, ne in enumerate(nets) :
     for idx_c, cl in enumerate(cleaning) :
         if idx_c > 0:
-            temp = transforms[-1].lerp_n(ne * cl, 5)
+            temp = transforms[-1].sclerp_n(ne * cl, 5)
             for i in range(5) :
                 transforms.append(temp[i])
             
         if idx_c == 0 and idx_n > 0 :
-            temp = transforms[-1].lerp_n(transforms[-1] * dq.from_trans([-1, 0, 0], q([1, 0, 0, 0.01]).normalized()), 5)
+            temp = transforms[-1].sclerp_n(transforms[-1] * dq.from_trans([-1, 0, 0], q([1, 0, 0, 0.01]).normalized()), 5)
             for i in range(5) :
                 transforms.append(temp[i])
             
             if idx_n % 2 == 0 :
-                temp = transforms[-1].lerp_n(dq.from_trans([0, 0, -0.5], q()), 20)
+                temp = transforms[-1].sclerp_n(dq.from_trans([0, 0, -0.5], q()), 20)
                 for i in range(20) :
                     transforms.append(temp[i])
                 
-                temp = transforms[-1].lerp_n((ne * cl) * dq.from_trans([-0.5, 0, 0], q([1, 0, 0, 0.01]).normalized()), 20)
+                temp = transforms[-1].sclerp_n((ne * cl) * dq.from_trans([-0.5, 0, 0], q([1, 0, 0, 0.01]).normalized()), 20)
                 for i in range(20) :
                     transforms.append(temp[i])
 
             if idx_n % 2 != 0 :
-                temp = transforms[-1].lerp_n((ne * cl) * dq.from_trans([-1, 0, 0], q([1, 0, 0, 0.01]).normalized()), 5)
+                temp = transforms[-1].sclerp_n((ne * cl) * dq.from_trans([-1, 0, 0], q([1, 0, 0, 0.01]).normalized()), 5)
                 for i in range(5) :
                     transforms.append(temp[i])
 
-            temp = transforms[-1].lerp_n(ne * cl, 5)
+            temp = transforms[-1].sclerp_n(ne * cl, 5)
             for i in range(5) :
                 transforms.append(temp[i])
 
@@ -159,52 +82,21 @@ for idx, trans in enumerate(tqdm(transforms)) :
     components = trans.as_trans()
 
     points.append(components[0])
-    
-    
-    arrow_len = 0.25
-    arrows = 'facing'
-
-    if arrows == 'facing' :
-        dir_x = components[1].rot_apply([arrow_len, 0, 0])
-        ax.arrow3D(*components[0],
-                *dir_x,
-                mutation_scale = 10,
-                arrowstyle = "-|>",
-                linestyle = 'solid')
-
-    elif arrows == 'basis' :
-        dir_x = components[1].rot_apply([arrow_len, 0, 0])
-        ax.arrow3D(*components[0],
-                *dir_x,
-                mutation_scale = 10,
-                arrowstyle = "-|>",
-                linestyle = 'solid',
-                color = 'red')
-        
-        dir_y = components[1].rot_apply([0, arrow_len, 0])
-        ax.arrow3D(*components[0],
-                *dir_y,
-                mutation_scale = 10,
-                arrowstyle = "-|>",
-                linestyle = 'solid',
-                color = 'green')
-        
-        dir_z = components[1].rot_apply([0, 0, arrow_len])
-        ax.arrow3D(*components[0],
-                *dir_z,
-                mutation_scale=10,
-                arrowstyle = "-|>",
-                linestyle = 'solid',
-                color = 'blue')
 
 ########################################################################################################
 
 points = np.array(points)
 
+fig = plt.figure()
+ax = fig.add_subplot(111, projection='3d')
+
 scatter = ax.scatter(points[:,0], points[:,1], points[:,2], c=range(np.shape(points)[0]), cmap='viridis')
 fig.colorbar(scatter)
 
 ax.plot(points[:,0], points[:,1], points[:,2])
+
+# quat_plot.plot_quats(ax, rots, 'facing')
+quat_plot.plot_dual_quats(ax, transforms, 'facing')
 
 ax.set_xlabel('x')
 ax.set_ylabel('y')
