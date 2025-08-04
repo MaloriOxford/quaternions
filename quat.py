@@ -137,6 +137,119 @@ class quat() :
     def sum_sq(self, p: Self) :
         '''Returns the sum of the squares of the elements of two quaternions.'''
         return self.w * p.w + self.x * p.x + self.y * p.y + self.z * p.z
+    
+    def slerp(self, stop: Self, tau: float) :
+        '''
+        Perform Spherical Linear Interpolation (SLERP) from the current unit quaternion to another.
+
+        Kavan and Žára, 2005, Spherical blend skinning: a real-time deformation of articulated models (https://doi.org/10.1145/1053427.1053429)
+        
+        Args
+        ---
+        stop : quat
+            The unit quaternion to perform interpolation to from this one
+        tau : float
+            A value between 0 and 1 representing how far along the interpolation to retrun a value for
+
+        Returns
+        ---
+        q : quat
+            A unit quaternion interpolated between self and stop
+        '''
+        dot = self.sum_sq(stop)
+        if dot >= 0 :
+            start = self
+        else :
+            start = -1 * self
+            dot *= -1
+
+        theta = math.acos(dot)
+
+        if theta == 0 or theta == math.pi :
+            return start
+        
+        return ((math.sin((1 - tau) * theta) * start) + (math.sin(tau * theta) * stop)) / math.sin(theta)
+    
+    def slerp_n(self, stop: Self, n: int) :
+        '''
+        Returns n equally spaced unit quaternions interpolated between self and stop using SLERP.
+
+        Args
+        ---
+        stop : quat
+            Unit quaternion to interpolate to
+        n : int
+            Number of interpolated quaternions to return
+
+        Returns
+        ---
+        qs : list[quat]
+        '''
+        if n > 0 :
+            d_tau = 1 / (n + 1)
+        else :
+            raise ZeroDivisionError
+
+        qs = []
+        for i in range(n) :
+            qs.append(self.slerp(stop, (i + 1) * d_tau))
+
+        return qs
+
+    def qlerp(self, stop: Self, tau: float) :
+        '''
+        Perform Quaternion Linear Interpolation (QLERP) from the current unit quaternion to another.
+
+        Faster than SLERP, but not guarenteed to be the shortest path.
+
+        Kavan and Žára, 2005, Spherical blend skinning: a real-time deformation of articulated models (https://doi.org/10.1145/1053427.1053429)
+        
+        Args
+        ---
+        stop : quat
+            The unit quaternion to perform interpolation to from this one
+        tau : float
+            A value between 0 and 1 representing how far along the interpolation to retrun a value for
+
+        Returns
+        ---
+        q : quat
+            A unit quaternion interpolated between self and stop
+        '''
+        if self.sum_sq(stop) >= 0 :
+            start = self
+        else :
+            start = -1 * self
+
+        interp = (1 - tau) * start + tau * stop
+
+        return interp / interp.norm()
+
+    def qlerp_n(self, stop: Self, n: int) :
+        '''
+        Returns n equally spaced unit quaternions interpolated between self and stop using QLERP.
+
+        Args
+        ---
+        stop : quat
+            Unit quaternion to interpolate to
+        n : int
+            Number of interpolated quaternions to return
+
+        Returns
+        ---
+        qs : list[quat]
+        '''
+        if n > 0 :
+            d_tau = 1 / (n + 1)
+        else :
+            raise ZeroDivisionError
+
+        qs = []
+        for i in range(n) :
+            qs.append(self.qlerp(stop, (i + 1) * d_tau))
+
+        return qs
 
     def __mul__(self, p: Self) :
         '''
@@ -193,6 +306,10 @@ class quat() :
             return (self.w, self.x, self.y, self.z) == (p.w, p.x, p.y, p.z)
         else :
             return NotImplemented
+        
+    def __pow__(self, p) :
+        theta, u = self.as_axis()
+        return (self.norm() ** p) * quat.from_axis(theta * p, u)
 
     def __str__(self):
         return f'w: {self.w}, x: {self.x}, y: {self.y}, z: {self.z}'

@@ -154,7 +154,7 @@ class dual_quat() :
         Returns
         ---
         dq : dual_quat
-            A dual quaternion interpolated between self and to
+            A dual quaternion interpolated between self and stop
         '''
         if not (self.is_unit() and stop.is_unit()) :
             raise BaseException('Only unit dual quaternions are valid representations of 3D transforms')
@@ -179,9 +179,16 @@ class dual_quat() :
             
             return dual_quat.from_trans(lin_interp, start.r)
     
-    def sclerp_n(self, stop: Self, n: float) :
+    def sclerp_n(self, stop: Self, n: int) :
         '''
         Returns n equally spaced dual quaternions interpolated between self and stop.
+
+        Args
+        ---
+        stop : quat
+            Unit dual quaternion to interpolate to
+        n : int
+            Number of interpolated dual quaternions to return
 
         Returns
         ---

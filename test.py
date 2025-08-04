@@ -48,66 +48,114 @@ ax = fig.add_subplot(111, projection='3d')
 
 ########################################################################################################
 
+q0 = q([1, 0, 0, 0]).normalized()
+q1 = q([0, 0, 0, -1]).normalized()
+
+rots = [q0, *q0.slerp_n(q1, 10), q1]
+points = []
+
+for idx, rot in enumerate(tqdm(rots)) :
+    points.append([0, 0, 0])
+    
+    
+    arrow_len = 0.25
+    arrows = 'facing'
+
+    if arrows == 'facing' :
+        dir_x = rot.rot_apply([arrow_len, 0, 0])
+        ax.arrow3D(*[0, 0, 0],
+                *dir_x,
+                mutation_scale = 10,
+                arrowstyle = "-|>",
+                linestyle = 'solid')
+
+    elif arrows == 'basis' :
+        dir_x = rot.rot_apply([arrow_len, 0, 0])
+        ax.arrow3D(*[0, 0, 0],
+                *dir_x,
+                mutation_scale = 10,
+                arrowstyle = "-|>",
+                linestyle = 'solid',
+                color = 'red')
+        
+        dir_y = rot.rot_apply([0, arrow_len, 0])
+        ax.arrow3D(*[0, 0, 0],
+                *dir_y,
+                mutation_scale = 10,
+                arrowstyle = "-|>",
+                linestyle = 'solid',
+                color = 'green')
+        
+        dir_z = rot.rot_apply([0, 0, arrow_len])
+        ax.arrow3D(*[0, 0, 0],
+                *dir_z,
+                mutation_scale=10,
+                arrowstyle = "-|>",
+                linestyle = 'solid',
+                color = 'blue')
+
+########################################################################################################
+
 # n = 100000
 
 # rand_quats = np.random.normal([0, 0, 0, 0], [1, 1, 1, 1], (n, 4))
 
-transforms = []
+# transforms = []
 
-cleaning = [
-    dq.from_trans([0,0,0],q()),
-    dq.from_trans([0,0,-1],q()),
-    dq.from_trans([0,-0.5,-1],q()),
-    dq.from_trans([0,-0.5,0],q()),
-    dq.from_trans([0,-1,0],q()),
-    dq.from_trans([0,-1,-1],q()),
-    dq.from_trans([0,-1.5,-1],q()),
-    dq.from_trans([0,-1.5,0],q())
-    ]
+# cleaning = [
+#     dq.from_trans([0,0,0],q()),
+#     dq.from_trans([0,0,-1],q()),
+#     dq.from_trans([0,-0.5,-1],q()),
+#     dq.from_trans([0,-0.5,0],q()),
+#     dq.from_trans([0,-1,0],q()),
+#     dq.from_trans([0,-1,-1],q()),
+#     dq.from_trans([0,-1.5,-1],q()),
+#     dq.from_trans([0,-1.5,0],q())
+#     ]
 
-nets = [
-    dq.from_trans([-3,-2.5,-0.5],q([-1, 0, 0, 1.25]).normalized()),
-    dq.from_trans([-4.55,-2.05,-0.5],q([-1, 0, 0, 0.75]).normalized()),
-    dq.from_trans([3,2.5,-0.5],q([1, 0, 0, 0.75]).normalized()),
-    dq.from_trans([4.55,2.05,-0.5],q([1, 0, 0, 1.25]).normalized()),
+# nets = [
+#     dq.from_trans([-3,-2.5,-0.5],q([-1, 0, 0, 1.25]).normalized()),
+#     dq.from_trans([-4.55,-2.05,-0.5],q([-1, 0, 0, 0.75]).normalized()),
+#     dq.from_trans([3,2.5,-0.5],q([1, 0, 0, 0.75]).normalized()),
+#     dq.from_trans([4.55,2.05,-0.5],q([1, 0, 0, 1.25]).normalized()),
 
-    dq.from_trans([-3,-2.5,-0.5],q([-1, 0, 0, 1.25]).normalized()),
-    dq.from_trans([-4.55,-2.05,-0.5],q([-1, 0, 0, 0.75]).normalized()),
-    dq.from_trans([3,2.5,-0.5],q([1, 0, 0, 0.75]).normalized()),
-    dq.from_trans([4.55,2.05,-0.5],q([1, 0, 0, 1.25]).normalized()),
-]
+#     dq.from_trans([-3,-2.5,-0.5],q([-1, 0, 0, 1.25]).normalized()),
+#     dq.from_trans([-4.55,-2.05,-0.5],q([-1, 0, 0, 0.75]).normalized()),
+#     dq.from_trans([3,2.5,-0.5],q([1, 0, 0, 0.75]).normalized()),
+#     dq.from_trans([4.55,2.05,-0.5],q([1, 0, 0, 1.25]).normalized()),
+# ]
 
-for idx_n, ne in enumerate(nets) :
-    for idx_c, cl in enumerate(cleaning) :
-        if idx_c > 0:
-            temp = transforms[-1].sclerp_n(ne * cl, 5)
-            for i in range(5) :
-                transforms.append(temp[i])
+# for idx_n, ne in enumerate(nets) :
+#     for idx_c, cl in enumerate(cleaning) :
+#         if idx_c > 0:
+#             temp = transforms[-1].sclerp_n(ne * cl, 5)
+#             for i in range(5) :
+#                 transforms.append(temp[i])
             
-        if idx_c == 0 and idx_n > 0 :
-            temp = transforms[-1].sclerp_n(transforms[-1] * dq.from_trans([-1, 0, 0], q([1, 0, 0, 0.01]).normalized()), 5)
-            for i in range(5) :
-                transforms.append(temp[i])
+#         if idx_c == 0 and idx_n > 0 :
+#             temp = transforms[-1].sclerp_n(transforms[-1] * dq.from_trans([-1, 0, 0], q([1, 0, 0, 0.01]).normalized()), 5)
+#             for i in range(5) :
+#                 transforms.append(temp[i])
             
-            if idx_n % 2 == 0 :
-                temp = transforms[-1].sclerp_n(dq.from_trans([0, 0, -0.5], q()), 20)
-                for i in range(20) :
-                    transforms.append(temp[i])
+#             if idx_n % 2 == 0 :
+#                 temp = transforms[-1].sclerp_n(dq.from_trans([0, 0, -0.5], q()), 20)
+#                 for i in range(20) :
+#                     transforms.append(temp[i])
                 
-                temp = transforms[-1].sclerp_n((ne * cl) * dq.from_trans([-0.5, 0, 0], q([1, 0, 0, 0.01]).normalized()), 20)
-                for i in range(20) :
-                    transforms.append(temp[i])
+#                 temp = transforms[-1].sclerp_n((ne * cl) * dq.from_trans([-0.5, 0, 0], q([1, 0, 0, 0.01]).normalized()), 20)
+#                 for i in range(20) :
+#                     transforms.append(temp[i])
 
-            if idx_n % 2 != 0 :
-                temp = transforms[-1].sclerp_n((ne * cl) * dq.from_trans([-1, 0, 0], q([1, 0, 0, 0.01]).normalized()), 5)
-                for i in range(5) :
-                    transforms.append(temp[i])
+#             if idx_n % 2 != 0 :
+#                 temp = transforms[-1].sclerp_n((ne * cl) * dq.from_trans([-1, 0, 0], q([1, 0, 0, 0.01]).normalized()), 5)
+#                 for i in range(5) :
+#                     transforms.append(temp[i])
 
-            temp = transforms[-1].sclerp_n(ne * cl, 5)
-            for i in range(5) :
-                transforms.append(temp[i])
+#             temp = transforms[-1].sclerp_n(ne * cl, 5)
+#             for i in range(5) :
+#                 transforms.append(temp[i])
 
-        transforms.append(ne * cl)
+#         transforms.append(ne * cl)
 
 
 
@@ -123,54 +171,54 @@ for idx_n, ne in enumerate(nets) :
 
 #     return [x, y, z]
 
-points = []
+# points = []
 
-for idx, trans in enumerate(tqdm(transforms)) :
-    # if idx == 0 :
-    #     components = (trans).as_trans()
-    # else :
-    #     components = (transforms[idx - 1] * trans).as_trans()
+# for idx, trans in enumerate(tqdm(transforms)) :
+#     # if idx == 0 :
+#     #     components = (trans).as_trans()
+#     # else :
+#     #     components = (transforms[idx - 1] * trans).as_trans()
 
-    components = trans.as_trans()
+#     components = trans.as_trans()
 
-    points.append(components[0])
+#     points.append(components[0])
     
     
-    arrow_len = 0.25
-    arrows = 'facing'
+#     arrow_len = 0.25
+#     arrows = 'facing'
 
-    if arrows == 'facing' :
-        dir_x = components[1].rot_apply([arrow_len, 0, 0])
-        ax.arrow3D(*components[0],
-                *dir_x,
-                mutation_scale = 10,
-                arrowstyle = "-|>",
-                linestyle = 'solid')
+#     if arrows == 'facing' :
+#         dir_x = components[1].rot_apply([arrow_len, 0, 0])
+#         ax.arrow3D(*components[0],
+#                 *dir_x,
+#                 mutation_scale = 10,
+#                 arrowstyle = "-|>",
+#                 linestyle = 'solid')
 
-    elif arrows == 'basis' :
-        dir_x = components[1].rot_apply([arrow_len, 0, 0])
-        ax.arrow3D(*components[0],
-                *dir_x,
-                mutation_scale = 10,
-                arrowstyle = "-|>",
-                linestyle = 'solid',
-                color = 'red')
+#     elif arrows == 'basis' :
+#         dir_x = components[1].rot_apply([arrow_len, 0, 0])
+#         ax.arrow3D(*components[0],
+#                 *dir_x,
+#                 mutation_scale = 10,
+#                 arrowstyle = "-|>",
+#                 linestyle = 'solid',
+#                 color = 'red')
         
-        dir_y = components[1].rot_apply([0, arrow_len, 0])
-        ax.arrow3D(*components[0],
-                *dir_y,
-                mutation_scale = 10,
-                arrowstyle = "-|>",
-                linestyle = 'solid',
-                color = 'green')
+#         dir_y = components[1].rot_apply([0, arrow_len, 0])
+#         ax.arrow3D(*components[0],
+#                 *dir_y,
+#                 mutation_scale = 10,
+#                 arrowstyle = "-|>",
+#                 linestyle = 'solid',
+#                 color = 'green')
         
-        dir_z = components[1].rot_apply([0, 0, arrow_len])
-        ax.arrow3D(*components[0],
-                *dir_z,
-                mutation_scale=10,
-                arrowstyle = "-|>",
-                linestyle = 'solid',
-                color = 'blue')
+#         dir_z = components[1].rot_apply([0, 0, arrow_len])
+#         ax.arrow3D(*components[0],
+#                 *dir_z,
+#                 mutation_scale=10,
+#                 arrowstyle = "-|>",
+#                 linestyle = 'solid',
+#                 color = 'blue')
 
 points = np.array(points)
 
@@ -183,9 +231,10 @@ ax.set_xlabel('x')
 ax.set_ylabel('y')
 ax.set_zlabel('z')
 
-ax.set_xlim(-7, 7)
-ax.set_ylim(-7, 7)
-ax.set_zlim(-7, 7)
+axis_limits = 0.5
+ax.set_xlim(-axis_limits, axis_limits)
+ax.set_ylim(-axis_limits, axis_limits)
+ax.set_zlim(-axis_limits, axis_limits)
 
 plt.show()
 
