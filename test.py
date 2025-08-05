@@ -44,37 +44,30 @@ nets = [
     dq.from_trans([4.55,2.05,-0.5],q([1, 0, 0, 1.25]).normalized()),
 ]
 
+home = dq.from_trans([0, 0, 0], q())
+
+transforms.append(home)
+
 for idx_n, ne in enumerate(nets) :
     for idx_c, cl in enumerate(cleaning) :
-        if idx_c > 0:
-            temp = transforms[-1].sclerp_n(ne * cl, 5)
-            for i in range(5) :
-                transforms.append(temp[i])
-            
-        if idx_c == 0 and idx_n > 0 :
-            temp = transforms[-1].sclerp_n(transforms[-1] * dq.from_trans([-1, 0, 0], q([1, 0, 0, 0.01]).normalized()), 5)
-            for i in range(5) :
-                transforms.append(temp[i])
-            
-            if idx_n % 2 == 0 :
-                temp = transforms[-1].sclerp_n(dq.from_trans([0, 0, -0.5], q()), 20)
-                for i in range(20) :
-                    transforms.append(temp[i])
-                
-                temp = transforms[-1].sclerp_n((ne * cl) * dq.from_trans([-0.5, 0, 0], q([1, 0, 0, 0.01]).normalized()), 20)
-                for i in range(20) :
-                    transforms.append(temp[i])
+        next_point = ne * cl
 
-            if idx_n % 2 != 0 :
-                temp = transforms[-1].sclerp_n((ne * cl) * dq.from_trans([-1, 0, 0], q([1, 0, 0, 0.01]).normalized()), 5)
-                for i in range(5) :
-                    transforms.append(temp[i])
+        if idx_c > 0 :
+            transforms.extend(transforms[-1].lerp_n(next_point, 5))
+            transforms.append(next_point)
 
-            temp = transforms[-1].sclerp_n(ne * cl, 5)
-            for i in range(5) :
-                transforms.append(temp[i])
+        elif idx_c == 0 :
+            transforms.extend(transforms[-1].lerp_n(next_point * dq.from_trans([-1, 0, 0], q()), 5))
+            transforms.extend(transforms[-1].lerp_n(next_point, 5))
 
-        transforms.append(ne * cl)
+            transforms.append(next_point)
+        
+        if idx_c == len(cleaning) - 1 :
+            transforms.extend(next_point.lerp_n(next_point * dq.from_trans([-1, 0, 0], q()), 5))
+
+
+transforms.extend(transforms[-1].lerp_n(home, 10))
+transforms.append(home)
 
 points = []
 
@@ -111,8 +104,7 @@ plt.show()
 
 ########################################################################################################
 
-# dq0 = dq.from_trans([1, 2, 3], q([1, 1, 1, 1]).normalized())
-# dq1 = dq.from_trans([3, 2, 3], q([1, 0, 1, 1]).normalized())
+# dq0 = dq.from_trans([1000, 60, 3], q([1, 1, 1, 1]).normalized())
+# dq1 = dq.from_trans([-1000, 2, 500], q([1, 0, 1, 1]).normalized())
 
-# print(dq0.sclerp(dq1, 0.5))
-# print(dq0)
+# dqs = [dq0, *dq0.sclerp_n(dq1, 98), dq1]

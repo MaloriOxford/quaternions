@@ -164,9 +164,13 @@ class quat() :
         dot = self.sum_sq(stop)
         if dot >= 0 :
             start = self
+            if dot > 1 :
+                dot = 1
         else :
             start = -1 * self
             dot *= -1
+            if dot < -1 :
+                dot = -1
 
         theta = math.acos(dot)
 
