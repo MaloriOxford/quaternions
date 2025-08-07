@@ -19,92 +19,122 @@ from tqdm import tqdm
 
 ########################################################################################################
 
-transforms = []
+# transforms = []
 
-cleaning = [
-    dq.from_trans([0,0,0],q()),
-    dq.from_trans([0,0,-1],q()),
-    dq.from_trans([0,-0.5,-1],q()),
-    dq.from_trans([0,-0.5,0],q()),
-    dq.from_trans([0,-1,0],q()),
-    dq.from_trans([0,-1,-1],q()),
-    dq.from_trans([0,-1.5,-1],q()),
-    dq.from_trans([0,-1.5,0],q())
-    ]
+# cleaning = [
+#     dq.from_trans([0,0,0],q()),
+#     dq.from_trans([0,0,-1],q()),
+#     dq.from_trans([0,-0.5,-1],q()),
+#     dq.from_trans([0,-0.5,0],q()),
+#     dq.from_trans([0,-1,0],q()),
+#     dq.from_trans([0,-1,-1],q()),
+#     dq.from_trans([0,-1.5,-1],q()),
+#     dq.from_trans([0,-1.5,0],q())
+#     ]
 
-nets = [
-    dq.from_trans([-3,-2.5,-0.5],q([-1, 0, 0, 1.25]).normalized()),
-    dq.from_trans([-4.55,-2.05,-0.5],q([-1, 0, 0, 0.75]).normalized()),
-    dq.from_trans([3,2.5,-0.5],q([1, 0, 0, 0.75]).normalized()),
-    dq.from_trans([4.55,2.05,-0.5],q([1, 0, 0, 1.25]).normalized()),
+# nets = [
+#     dq.from_trans([-3,-2.5,-0.5],q([-1, 0, 0, 1.25]).normalized()),
+#     dq.from_trans([-4.55,-2.05,-0.5],q([-1, 0, 0, 0.75]).normalized()),
+#     dq.from_trans([3,2.5,-0.5],q([1, 0, 0, 0.75]).normalized()),
+#     dq.from_trans([4.55,2.05,-0.5],q([1, 0, 0, 1.25]).normalized()),
 
-    dq.from_trans([-3,-2.5,-0.5],q([-1, 0, 0, 1.25]).normalized()),
-    dq.from_trans([-4.55,-2.05,-0.5],q([-1, 0, 0, 0.75]).normalized()),
-    dq.from_trans([3,2.5,-0.5],q([1, 0, 0, 0.75]).normalized()),
-    dq.from_trans([4.55,2.05,-0.5],q([1, 0, 0, 1.25]).normalized()),
-]
+#     dq.from_trans([-3,-2.5,-0.5],q([-1, 0, 0, 1.25]).normalized()),
+#     dq.from_trans([-4.55,-2.05,-0.5],q([-1, 0, 0, 0.75]).normalized()),
+#     dq.from_trans([3,2.5,-0.5],q([1, 0, 0, 0.75]).normalized()),
+#     dq.from_trans([4.55,2.05,-0.5],q([1, 0, 0, 1.25]).normalized()),
+# ]
 
-home = dq.from_trans([0, 0, 0], q())
+# home = dq.from_trans([0, 0, 0], q())
 
-transforms.append(home)
+# transforms.append(home)
 
-for idx_n, ne in enumerate(nets) :
-    for idx_c, cl in enumerate(cleaning) :
-        next_point = ne * cl
+# for idx_n, ne in enumerate(nets) :
+#     for idx_c, cl in enumerate(cleaning) :
+#         next_point = ne * cl
 
-        if idx_c > 0 :
-            transforms.extend(transforms[-1].lerp_n(next_point, 5))
-            transforms.append(next_point)
+#         if idx_c > 0 :
+#             transforms.extend(transforms[-1].lerp_n(next_point, 5))
+#             transforms.append(next_point)
 
-        elif idx_c == 0 :
-            transforms.extend(transforms[-1].lerp_n(next_point * dq.from_trans([-1, 0, 0], q()), 5))
-            transforms.extend(transforms[-1].lerp_n(next_point, 5))
+#         elif idx_c == 0 :
+#             transforms.extend(transforms[-1].lerp_n(next_point * dq.from_trans([-1, 0, 0], q()), 5))
+#             transforms.extend(transforms[-1].lerp_n(next_point, 5))
 
-            transforms.append(next_point)
+#             transforms.append(next_point)
         
-        if idx_c == len(cleaning) - 1 :
-            transforms.extend(next_point.lerp_n(next_point * dq.from_trans([-1, 0, 0], q()), 5))
+#         if idx_c == len(cleaning) - 1 :
+#             transforms.extend(next_point.lerp_n(next_point * dq.from_trans([-1, 0, 0], q()), 5))
 
 
-transforms.extend(transforms[-1].lerp_n(home, 10))
-transforms.append(home)
+# transforms.extend(transforms[-1].lerp_n(home, 10))
+# transforms.append(home)
 
-points = []
+# points = []
 
-for idx, trans in enumerate(tqdm(transforms)) :
-    components = trans.as_trans()
+# for idx, trans in enumerate(tqdm(transforms)) :
+#     components = trans.as_trans()
 
-    points.append(components[0])
+#     points.append(components[0])
 
 ########################################################################################################
 
-points = np.array(points)
+# points = np.array(points)
 
 fig = plt.figure()
 ax = fig.add_subplot(111, projection='3d')
 
-scatter = ax.scatter(points[:,0], points[:,1], points[:,2], c=range(np.shape(points)[0]), cmap='viridis')
-fig.colorbar(scatter)
+# scatter = ax.scatter(points[:,0], points[:,1], points[:,2], c=range(np.shape(points)[0]), cmap='viridis')
+# fig.colorbar(scatter)
 
-ax.plot(points[:,0], points[:,1], points[:,2])
+# ax.plot(points[:,0], points[:,1], points[:,2])
 
-# quat_plot.plot_quats(ax, rots, 'facing')
-quat_plot.plot_dual_quats(ax, transforms, 'facing')
+# # quat_plot.plot_quats(ax, rots, 'facing')
+# quat_plot.plot_dual_quats(ax, transforms, 'facing')
+
+# ax.set_xlabel('x')
+# ax.set_ylabel('y')
+# ax.set_zlabel('z')
+
+# axis_limits = 7
+# ax.set_xlim(-axis_limits, axis_limits)
+# ax.set_ylim(-axis_limits, axis_limits)
+# ax.set_zlim(-axis_limits, axis_limits)
+
+# plt.show()
+
+########################################################################################################
+
+dqs = []
+n = 5
+lim = 10
+coef = (lim / 2) / n
+
+for r in tqdm(range(n)) :
+    for i in range (n) :
+        for j in range(n) :
+            for k in range(n) :
+                dqs.append(dq(q(np.random.normal([1, 0, 0, 0])).normalized(), [r * coef, i * coef, j * coef, k * coef]))
+                dn = dqs[-1].norm()
+                dqs[-1] = dq((dqs[-1].r / dn.r), (dn.r * dqs[-1].d + -dn.d * dqs[-1].r) / (dn.r ** 2))
+
+# dq0 = dq(q([1, 1, 1, 1]).normalized(),q([10, 2, 3, 4]))
+
+# dn = dq0.norm()
+
+# Normalize dq0
+# dq0 = dq((dq0.r / dn.r), (dn.r * dq0.d + -dn.d * dq0.r) / (dn.r ** 2))
+
+quat_plot.plot_dual_quats(ax, dqs, 'basis')
 
 ax.set_xlabel('x')
 ax.set_ylabel('y')
 ax.set_zlabel('z')
 
-axis_limits = 7
-ax.set_xlim(-axis_limits, axis_limits)
-ax.set_ylim(-axis_limits, axis_limits)
-ax.set_zlim(-axis_limits, axis_limits)
+# axis_limits = 4
+# ax.set_xlim(-axis_limits, axis_limits)
+# ax.set_ylim(-axis_limits, axis_limits)
+# ax.set_zlim(-axis_limits, axis_limits)
 
 plt.show()
 
-########################################################################################################
-
-# dq0 = dq.from_trans([1000, 60, 3], q([1, 1, 1, 1]).normalized())
-# dq1 = dq.from_trans([-1000, 2, 500], q([1, 0, 1, 1]).normalized())
-
-# dqs = [dq0, *dq0.sclerp_n(dq1, 98), dq1]
+# print(dq0, '\n', 2 * dq0.d * dq0.r.conj(), '\n', dq0.is_unit())
