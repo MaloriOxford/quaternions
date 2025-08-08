@@ -104,18 +104,60 @@ ax = fig.add_subplot(111, projection='3d')
 
 ########################################################################################################
 
-dqs = []
-n = 5
-lim = 10
-coef = (lim / 2) / n
+# Partial Spiral
+# keypoints = [
+#     dq.from_trans([0, 0, 0], q()),
+#     dq.from_trans([0, 1, 1], q([1, 1, -1, 1]).normalized()),
+#     dq.from_trans([0, 0, 2], q([0, -1, -1, -1]).normalized())
+#     ]
 
-for r in tqdm(range(n)) :
-    for i in range (n) :
-        for j in range(n) :
-            for k in range(n) :
-                dqs.append(dq(q(np.random.normal([1, 0, 0, 0])).normalized(), [r * coef, i * coef, j * coef, k * coef]))
-                dn = dqs[-1].norm()
-                dqs[-1] = dq((dqs[-1].r / dn.r), (dn.r * dqs[-1].d + -dn.d * dqs[-1].r) / (dn.r ** 2))
+# Whirly circle
+# keypoints = [
+#     dq.from_trans([0, 0, 0], q()),
+#     dq.from_trans([0, 1, 1], q([1, -1, -1, 1]).normalized())
+#     ]
+# keypoints.append(keypoints[1] * keypoints[1])
+# keypoints.append(keypoints[2] * keypoints[1])
+
+# Figure 8
+keypoints = [
+    dq.from_trans([0, 0, 0], q()),
+    dq.from_trans([0, 1, 1], q([1, 0, -1, 1]).normalized()),
+    dq.from_trans([0, 0, 2], q([1, -1, 1, 1]).normalized()),
+    dq.from_trans([0, -1, 1], q([1, 1, -1, 1]).normalized()),
+    dq.from_trans([0, 0, 0], q([1, 0, 1, -1]).normalized()),
+
+    dq.from_trans([0, -1, -1], q([1, 1, -1, 1]).normalized()),
+    dq.from_trans([0, 0, -2], q([1, -1, 1, -1]).normalized()),
+    dq.from_trans([0, 1, -1], q([1, -1, -1, 1]).normalized()),
+    dq.from_trans([0, 0, 0], q())
+    ]
+# keypoints.append(dq.from_trans([0, 0, 2], keypoints[-1].r * keypoints[1].r))
+
+
+dqs = []
+for idx, point in enumerate(keypoints) :
+    if idx == 0 :
+        dqs.append(point)
+        continue
+
+    dqs.extend(dqs[-1].sclerp_n(point, 20))
+    dqs.append(point)
+
+points = []
+for dquat in dqs :
+    trans, _ = dquat.as_trans()
+    points.append(trans)
+points = np.array(points)
+
+# dqs = []
+# vals = [-1, 0, 1]
+# for w in vals :
+#     for x in vals :
+#         for y in vals :
+#             for z in vals :
+#                 if w == 0 and x == 0 and y == 0 and z == 0 : continue
+#                 dqs.append(dq.from_trans([x, y, z], q([w, x, y, z]).normalized()))
 
 # dq0 = dq(q([1, 1, 1, 1]).normalized(),q([10, 2, 3, 4]))
 
@@ -125,15 +167,17 @@ for r in tqdm(range(n)) :
 # dq0 = dq((dq0.r / dn.r), (dn.r * dq0.d + -dn.d * dq0.r) / (dn.r ** 2))
 
 quat_plot.plot_dual_quats(ax, dqs, 'basis')
+scatter = ax.scatter(points[:,0], points[:,1], points[:,2], c=range(np.shape(points)[0]), cmap='viridis')
+fig.colorbar(scatter)
 
 ax.set_xlabel('x')
 ax.set_ylabel('y')
 ax.set_zlabel('z')
 
-# axis_limits = 4
-# ax.set_xlim(-axis_limits, axis_limits)
-# ax.set_ylim(-axis_limits, axis_limits)
-# ax.set_zlim(-axis_limits, axis_limits)
+axis_limits = 1
+ax.set_xlim(-axis_limits, axis_limits)
+ax.set_ylim(-axis_limits, axis_limits)
+ax.set_zlim(-axis_limits, axis_limits)
 
 plt.show()
 

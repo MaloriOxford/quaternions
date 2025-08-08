@@ -53,8 +53,8 @@ def plot_quat(ax: Axes3D, q: quat, arrows: str, len: float = 0.5) :
     q : quat
         The quaternion to plot
     arrows : str
-        The arrows to show from ['dir', 'basis']
-        dir gives a single arrow in the x direction, basis gives three arrows in the x, y, z directions
+        The arrows to show from ['facing', 'basis']
+        facing gives a single arrow in the x direction, basis gives three arrows in the x, y, z directions
     len : float, opt.
         The length of the arrows
     '''
@@ -71,8 +71,8 @@ def plot_quats(ax: Axes3D, qs: list[quat], arrows: str, len: float = 0.5) :
     qs : list[quat]
         The quaternions to plot
     arrows : str
-        The arrows to show from ['dir', 'basis']
-        dir gives a single arrow in the x direction, basis gives three arrows in the x, y, z directions
+        The arrows to show from ['facing', 'basis']
+        facing gives a single arrow in the x direction, basis gives three arrows in the x, y, z directions
     len : float, opt.
         The length of the arrows
     '''
@@ -91,8 +91,8 @@ def plot_dual_quat(ax: Axes3D, dq: dual_quat, arrows: str, len: float = 0.5) :
     dq : dual_quat
         The dual quaternion to plot
     arrows : str
-        The arrows to show from ['dir', 'basis']
-        dir gives a single arrow in the x direction, basis gives three arrows in the x, y, z directions
+        The arrows to show from ['facing', 'basis']
+        facing gives a single arrow in the x direction, basis gives three arrows in the x, y, z directions
     len : float, opt.
         The length of the arrows
     '''
@@ -110,8 +110,8 @@ def plot_dual_quats(ax: Axes3D, dqs: list[dual_quat], arrows: str, len: float = 
     dqs : list[dual_quat]
         The dual quaternions to plot
     arrows : str
-        The arrows to show from ['dir', 'basis']
-        dir gives a single arrow in the x direction, basis gives three arrows in the x, y, z directions
+        The arrows to show from ['facing', 'basis']
+        facing gives a single arrow in the x direction, basis gives three arrows in the x, y, z directions
     len : float, opt.
         The length of the arrows
     '''
@@ -131,8 +131,8 @@ def plot_arrows(ax: Axes3D, rot: quat, position: list[float], arrows: str, len: 
     position: list[float]
         The x, y, z position for the base of the arrow
     arrows : str
-        The arrows to show from ['dir', 'basis']
-        dir gives a single arrow in the x direction, basis gives three arrows in the x, y, z directions
+        The arrows to show from ['facing', 'basis']
+        facing gives a single arrow in the x direction, basis gives three arrows in the x, y, z directions
     len : float, opt.
         The length of the arrow
     '''
